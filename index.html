@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Dashboard Comercial — Construtora Gonçalves</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F6F2;
+    --surface: #FFFFFF;
+    --surface2: #F0EEE9;
+    --border: rgba(0,0,0,0.08);
+    --border2: rgba(0,0,0,0.14);
+    --text: #1A1916;
+    --text2: #6B6A65;
+    --text3: #A09F9A;
+    --blue: #185FA5;
+    --blue-light: #E6F1FB;
+    --green: #0F6E56;
+    --green-light: #E1F5EE;
+    --amber: #BA7517;
+    --amber-light: #FAEEDA;
+    --red: #C0392B;
+    --red-light: #FCEBEB;
+    --accent: #185FA5;
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.5;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 64px;
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .header-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--blue);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .header-icon svg { width: 20px; height: 20px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; }
+
+  .brand-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .brand-sub {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 400;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .period-badge {
+    font-size: 12px;
+    color: var(--text2);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-weight: 400;
+  }
+
+  /* ── FILTER BAR ── */
+  .filter-strip {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 40px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .filter-label {
+    font-size: 12px;
+    color: var(--text3);
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-right: 4px;
+  }
+
+  .filter-btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text2);
+    background: transparent;
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 5px 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .filter-btn:hover { background: var(--surface2); color: var(--text); }
+
+  .filter-btn.active {
+    background: var(--blue);
+    border-color: var(--blue);
+    color: #fff;
+    font-weight: 500;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  .main {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 32px 40px 60px;
+  }
+
+  /* ── SECTION TITLE ── */
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+    margin-top: 32px;
+  }
+
+  /* ── KPI CARDS ── */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 0;
+  }
+
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px 24px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeSlideUp 0.5s ease both;
+  }
+
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 3px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .kpi-card.blue::before { background: var(--blue); }
+  .kpi-card.green::before { background: var(--green); }
+  .kpi-card.amber::before { background: var(--amber); }
+  .kpi-card.red::before { background: var(--red); }
+
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text3);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+  }
+
+  .kpi-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--text);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--text3);
+    margin-top: 6px;
+  }
+
+  /* ── CHARTS GRID ── */
+  .charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    animation: fadeSlideUp 0.55s ease both;
+  }
+
+  .chart-card-wide {
+    grid-column: 1 / -1;
+  }
+
+  .chart-head {
+    margin-bottom: 18px;
+  }
+
+  .chart-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .chart-desc {
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  .legend-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text2);
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  /* ── INSIGHTS ── */
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+  }
+
+  .insight-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 20px 18px;
+    border-left: 4px solid;
+    animation: fadeSlideUp 0.6s ease both;
+    position: relative;
+  }
+
+  .insight-card.danger { border-left-color: var(--red); }
+  .insight-card.warning { border-left-color: var(--amber); }
+  .insight-card.info { border-left-color: var(--blue); }
+  .insight-card.success { border-left-color: var(--green); }
+
+  .insight-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .danger .insight-icon { background: var(--red-light); }
+  .warning .insight-icon { background: var(--amber-light); }
+  .info .insight-icon { background: var(--blue-light); }
+  .success .insight-icon { background: var(--green-light); }
+
+  .insight-tag {
+    font-size: 10px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 6px;
+  }
+
+  .danger .insight-tag { color: var(--red); }
+  .warning .insight-tag { color: var(--amber); }
+  .info .insight-tag { color: var(--blue); }
+  .success .insight-tag { color: var(--green); }
+
+  .insight-body {
+    font-size: 12.5px;
+    color: var(--text2);
+    line-height: 1.55;
+    margin-bottom: 12px;
+  }
+
+  .insight-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 24px;
+    font-weight: 500;
+  }
+
+  .danger .insight-number { color: var(--red); }
+  .warning .insight-number { color: var(--amber); }
+  .info .insight-number { color: var(--blue); }
+  .success .insight-number { color: var(--green); }
+
+  /* ── FOOTER ── */
+  .footer {
+    border-top: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 100%;
+    margin-top: 40px;
+  }
+
+  .footer-note {
+    font-size: 12px;
+    color: var(--text3);
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .kpi-card:nth-child(1) { animation-delay: 0.05s; }
+  .kpi-card:nth-child(2) { animation-delay: 0.1s; }
+  .kpi-card:nth-child(3) { animation-delay: 0.15s; }
+  .kpi-card:nth-child(4) { animation-delay: 0.2s; }
+
+  .chart-card:nth-child(1) { animation-delay: 0.25s; }
+  .chart-card:nth-child(2) { animation-delay: 0.3s; }
+  .chart-card:nth-child(3) { animation-delay: 0.38s; }
+
+  .insight-card:nth-child(1) { animation-delay: 0.42s; }
+  .insight-card:nth-child(2) { animation-delay: 0.47s; }
+  .insight-card:nth-child(3) { animation-delay: 0.52s; }
+  .insight-card:nth-child(4) { animation-delay: 0.57s; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .insights-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .header, .filter-strip, .main, .footer { padding-left: 20px; padding-right: 20px; }
+    .charts-grid { grid-template-columns: 1fr; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .insights-grid { grid-template-columns: 1fr 1fr; }
+    .header { height: auto; padding-top: 14px; padding-bottom: 14px; flex-wrap: wrap; gap: 10px; }
+    .kpi-value { font-size: 20px; }
+    .chart-card-wide { grid-column: auto; }
+  }
+
+  @media (max-width: 480px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .insights-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Divider */
+  .divider { height: 1px; background: var(--border); margin: 32px 0 0; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-brand">
+    <div class="header-icon">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">Construtora Gonçalves</div>
+      <div class="brand-sub">Dashboard Comercial</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="period-badge" id="period-badge">Abril – Junho 2025</span>
+  </div>
+</header>
+
+<!-- FILTER BAR -->
+<div class="filter-strip">
+  <span class="filter-label">Período</span>
+  <button class="filter-btn active" data-filter="todos">Todos os meses</button>
+  <button class="filter-btn" data-filter="Abril">Abril</button>
+  <button class="filter-btn" data-filter="Maio">Maio</button>
+  <button class="filter-btn" data-filter="Junho">Junho</button>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- KPIs -->
+  <div class="section-title">Visão geral</div>
+  <div class="kpi-grid" id="kpi-grid">
+    <div class="kpi-card blue"><div class="kpi-label">Receita total</div><div class="kpi-value" id="kpi-receita">—</div><div class="kpi-sub">no período selecionado</div></div>
+    <div class="kpi-card green"><div class="kpi-label">Total de leads</div><div class="kpi-value" id="kpi-leads">—</div><div class="kpi-sub">captados no período</div></div>
+    <div class="kpi-card amber"><div class="kpi-label">Conversão média</div><div class="kpi-value" id="kpi-conv">—</div><div class="kpi-sub">todos os canais</div></div>
+    <div class="kpi-card red"><div class="kpi-label">Ticket médio</div><div class="kpi-value" id="kpi-ticket">—</div><div class="kpi-sub">por contrato fechado</div></div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="section-title">Análise por canal e tipo de obra</div>
+  <div class="charts-grid">
+
+    <!-- Receita por canal -->
+    <div class="chart-card">
+      <div class="chart-head">
+        <div class="chart-title">Receita por canal de aquisição</div>
+        <div class="chart-desc">Total acumulado no período selecionado</div>
+      </div>
+      <div class="legend-row">
+        <span class="legend-item"><span class="legend-dot" style="background:#185FA5"></span>Instagram</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#0F6E56"></span>Indicação</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#BA7517"></span>Google</span>
+      </div>
+      <div style="position:relative;width:100%;height:240px;">
+        <canvas id="barChart" role="img" aria-label="Receita por canal de aquisição"></canvas>
+      </div>
+    </div>
+
+    <!-- Taxa de conversão -->
+    <div class="chart-card">
+      <div class="chart-head">
+        <div class="chart-title">Taxa de conversão por canal</div>
+        <div class="chart-desc">Comparativo por tipo de obra</div>
+      </div>
+      <div class="legend-row">
+        <span class="legend-item"><span class="legend-dot" style="background:#185FA5"></span>Residencial</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#0F6E56"></span>Comercial</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#BA7517"></span>Reforma</span>
+      </div>
+      <div style="position:relative;width:100%;height:240px;">
+        <canvas id="radarChart" role="img" aria-label="Taxa de conversão por canal e tipo de obra"></canvas>
+      </div>
+    </div>
+
+    <!-- Evolução de receita (full width) -->
+    <div class="chart-card chart-card-wide">
+      <div class="chart-head">
+        <div class="chart-title">Evolução de receita mensal</div>
+        <div class="chart-desc">Receita por tipo de obra ao longo dos meses</div>
+      </div>
+      <div class="legend-row">
+        <span class="legend-item"><span class="legend-dot" style="background:#185FA5"></span>Residencial</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#0F6E56"></span>Comercial</span>
+        <span class="legend-item"><span class="legend-dot" style="background:#BA7517"></span>Reforma</span>
+      </div>
+      <div style="position:relative;width:100%;height:220px;">
+        <canvas id="lineChart" role="img" aria-label="Evolução de receita mensal por tipo de obra"></canvas>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- INSIGHTS -->
+  <div class="section-title">Gargalos e insights estratégicos</div>
+  <div class="insights-grid" id="insights-grid">
+    <!-- filled by JS -->
+  </div>
+
+  <div class="divider"></div>
+
+</main>
+
+<footer class="footer">
+  <span class="footer-note">Dados: Abril – Junho 2025 · Construtora Gonçalves</span>
+  <span class="footer-note">Dashboard gerado automaticamente</span>
+</footer>
+
+<script>
+const RAW = [
+  { mes:'Abril', tipo:'Residencial', canal:'Instagram', leads:110, conv:2.2, ticket:24000, receita:58080 },
+  { mes:'Abril', tipo:'Comercial',   canal:'Indicação', leads:70,  conv:5.5, ticket:42000, receita:161700 },
+  { mes:'Abril', tipo:'Reforma',     canal:'Google',    leads:140, conv:1.5, ticket:14000, receita:29400 },
+  { mes:'Abril', tipo:'Residencial', canal:'Google',    leads:95,  conv:2.8, ticket:23000, receita:61160 },
+  { mes:'Abril', tipo:'Comercial',   canal:'Instagram', leads:85,  conv:2.0, ticket:35000, receita:59500 },
+  { mes:'Maio',  tipo:'Residencial', canal:'Instagram', leads:130, conv:2.4, ticket:26000, receita:81120 },
+  { mes:'Maio',  tipo:'Comercial',   canal:'Indicação', leads:90,  conv:5.2, ticket:41000, receita:191880 },
+  { mes:'Maio',  tipo:'Reforma',     canal:'Google',    leads:160, conv:1.7, ticket:15500, receita:42160 },
+  { mes:'Maio',  tipo:'Residencial', canal:'Google',    leads:105, conv:3.0, ticket:24000, receita:75600 },
+  { mes:'Maio',  tipo:'Comercial',   canal:'Instagram', leads:95,  conv:2.3, ticket:36000, receita:78660 },
+  { mes:'Junho', tipo:'Residencial', canal:'Instagram', leads:120, conv:2.5, ticket:25000, receita:75000 },
+  { mes:'Junho', tipo:'Comercial',   canal:'Indicação', leads:80,  conv:5.0, ticket:40000, receita:160000 },
+  { mes:'Junho', tipo:'Reforma',     canal:'Google',    leads:150, conv:1.8, ticket:15000, receita:40500 },
+  { mes:'Junho', tipo:'Residencial', canal:'Google',    leads:100, conv:2.9, ticket:23500, receita:68150 },
+  { mes:'Junho', tipo:'Comercial',   canal:'Instagram', leads:90,  conv:2.1, ticket:37000, receita:69930 },
+];
+
+const CANAIS = ['Instagram','Indicação','Google'];
+const TIPOS  = ['Residencial','Comercial','Reforma'];
+const MESES  = ['Abril','Maio','Junho'];
+
+const C = {
+  blue:'#185FA5', blueFill:'rgba(24,95,165,0.12)',
+  green:'#0F6E56', greenFill:'rgba(15,110,86,0.12)',
+  amber:'#BA7517', amberFill:'rgba(186,117,23,0.12)',
+};
+
+let currentFilter = 'todos';
+let charts = {};
+
+function getData() {
+  return currentFilter === 'todos' ? RAW : RAW.filter(d => d.mes === currentFilter);
+}
+
+function fmt(v) {
+  if (v >= 1e6) return 'R$ ' + (v/1e6).toFixed(2).replace('.',',') + 'M';
+  if (v >= 1e3) return 'R$ ' + Math.round(v/1000) + 'k';
+  return 'R$ ' + Math.round(v).toLocaleString('pt-BR');
+}
+
+function avg(arr, key) {
+  if (!arr.length) return 0;
+  return arr.reduce((s,r) => s+r[key], 0) / arr.length;
+}
+
+/* KPIs */
+function updateKPIs() {
+  const d = getData();
+  document.getElementById('kpi-receita').textContent = fmt(d.reduce((s,r)=>s+r.receita,0));
+  document.getElementById('kpi-leads').textContent = d.reduce((s,r)=>s+r.leads,0).toLocaleString('pt-BR');
+  document.getElementById('kpi-conv').textContent = avg(d,'conv').toFixed(1) + '%';
+  document.getElementById('kpi-ticket').textContent = fmt(avg(d,'ticket'));
+}
+
+/* BAR CHART */
+function updateBar() {
+  const d = getData();
+  const vals = CANAIS.map(c => d.filter(r=>r.canal===c).reduce((s,r)=>s+r.receita,0));
+  const colors = [C.blue, C.green, C.amber];
+
+  if (charts.bar) charts.bar.destroy();
+  charts.bar = new Chart(document.getElementById('barChart'), {
+    type: 'bar',
+    data: {
+      labels: CANAIS,
+      datasets: [{
+        data: vals,
+        backgroundColor: colors,
+        borderRadius: 8,
+        borderSkipped: false,
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: ctx => ' ' + fmt(ctx.raw),
+            title: ctx => ctx[0].label
+          },
+          backgroundColor: '#fff',
+          titleColor: '#1A1916',
+          bodyColor: '#6B6A65',
+          borderColor: 'rgba(0,0,0,0.1)',
+          borderWidth: 1,
+          padding: 10,
+          cornerRadius: 8,
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#A09F9A', font: { family: 'DM Sans', size: 12 } } },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: { color: '#A09F9A', font: { family: 'DM Sans', size: 11 }, callback: v => 'R$ '+(v/1000)+'k' }
+        }
+      }
+    }
+  });
+}
+
+/* RADAR CHART */
+function updateRadar() {
+  const d = getData();
+  const typeColors = [C.blue, C.green, C.amber];
+  const typeFills  = [C.blueFill, C.greenFill, C.amberFill];
+
+  const datasets = TIPOS.map((t,i) => ({
+    label: t,
+    data: CANAIS.map(c => {
+      const rows = d.filter(r=>r.tipo===t && r.canal===c);
+      return rows.length ? parseFloat(avg(rows,'conv').toFixed(2)) : null;
+    }),
+    borderColor: typeColors[i],
+    backgroundColor: typeFills[i],
+    borderWidth: 2,
+    pointBackgroundColor: typeColors[i],
+    pointRadius: 4,
+    spanGaps: true,
+  }));
+
+  if (charts.radar) charts.radar.destroy();
+  charts.radar = new Chart(document.getElementById('radarChart'), {
+    type: 'radar',
+    data: { labels: CANAIS, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${ctx.raw !== null ? ctx.raw.toFixed(1)+'%' : 'N/A'}` },
+          backgroundColor: '#fff', titleColor: '#1A1916', bodyColor: '#6B6A65',
+          borderColor: 'rgba(0,0,0,0.1)', borderWidth: 1, padding: 10, cornerRadius: 8,
+        }
+      },
+      scales: {
+        r: {
+          ticks: { display: false },
+          grid: { color: 'rgba(0,0,0,0.07)' },
+          pointLabels: { color: '#6B6A65', font: { family: 'DM Sans', size: 12 } },
+          suggestedMin: 0, suggestedMax: 7,
+        }
+      }
+    }
+  });
+}
+
+/* LINE CHART */
+function updateLine() {
+  const d = getData();
+  const mesLabels = currentFilter === 'todos' ? MESES : [currentFilter];
+  const typeColors = [C.blue, C.green, C.amber];
+  const typeFills  = [C.blueFill, C.greenFill, C.amberFill];
+
+  const datasets = TIPOS.map((t,i) => ({
+    label: t,
+    data: mesLabels.map(m => d.filter(r=>r.tipo===t && r.mes===m).reduce((s,r)=>s+r.receita,0)),
+    borderColor: typeColors[i],
+    backgroundColor: typeFills[i],
+    borderWidth: 2.5,
+    pointRadius: 5,
+    pointBackgroundColor: typeColors[i],
+    tension: 0.38,
+    fill: true,
+  }));
+
+  if (charts.line) charts.line.destroy();
+  charts.line = new Chart(document.getElementById('lineChart'), {
+    type: 'line',
+    data: { labels: mesLabels, datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      animation: { duration: 700, easing: 'easeOutQuart' },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.raw)}` },
+          backgroundColor: '#fff', titleColor: '#1A1916', bodyColor: '#6B6A65',
+          borderColor: 'rgba(0,0,0,0.1)', borderWidth: 1, padding: 10, cornerRadius: 8,
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: '#A09F9A', font: { family: 'DM Sans', size: 12 } } },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.05)' },
+          ticks: { color: '#A09F9A', font: { family: 'DM Sans', size: 11 }, callback: v => 'R$ '+(v/1000)+'k' }
+        }
+      }
+    }
+  });
+}
+
+/* INSIGHTS */
+function updateInsights() {
+  const d = getData();
+  const totalReceita = d.reduce((s,r)=>s+r.receita,0);
+  const receitaInd = d.filter(r=>r.canal==='Indicação').reduce((s,r)=>s+r.receita,0);
+  const pctInd = Math.round(receitaInd/totalReceita*100);
+
+  const rowsReforma = d.filter(r=>r.tipo==='Reforma');
+  const avgConvReforma = rowsReforma.length ? avg(rowsReforma,'conv').toFixed(1) : '—';
+
+  const rowsInst = d.filter(r=>r.canal==='Instagram');
+  const leadsInst = rowsInst.reduce((s,r)=>s+r.leads,0);
+  const avgConvInst = rowsInst.length ? avg(rowsInst,'conv').toFixed(1) : '—';
+
+  const rowsInd = d.filter(r=>r.canal==='Indicação');
+  const avgConvInd = rowsInd.length ? avg(rowsInd,'conv').toFixed(1) : '—';
+
+  const insightsData = [
+    {
+      type:'danger',
+      icon:'⚠️',
+      tag:'Risco crítico',
+      body:`${pctInd}% da receita comercial depende de indicações — canal não escalável e fora de controle da empresa.`,
+      number: pctInd + '%',
+    },
+    {
+      type:'warning',
+      icon:'⚡',
+      tag:'Gargalo de conversão',
+      body:`Reformas convertem apenas ${avgConvReforma}% com ticket baixo. Reconsiderar investimento ou reposicionar oferta.`,
+      number: avgConvReforma + '%',
+    },
+    {
+      type:'info',
+      icon:'📊',
+      tag:'Oportunidade',
+      body:`Instagram gera ${leadsInst.toLocaleString('pt-BR')} leads mas converte só ${avgConvInst}%. Qualificar funil pode dobrar receita sem novo investimento.`,
+      number: leadsInst.toLocaleString('pt-BR') + ' leads',
+    },
+    {
+      type:'success',
+      icon:'✅',
+      tag:'Canal mais eficiente',
+      body:`Indicação converte ${avgConvInd}% — o maior índice. Criar programa de referência formal pode escalar esse resultado.`,
+      number: avgConvInd + '%',
+    },
+  ];
+
+  document.getElementById('insights-grid').innerHTML = insightsData.map(ins => `
+    <div class="insight-card ${ins.type}">
+      <div class="insight-icon">${ins.icon}</div>
+      <div class="insight-tag">${ins.tag}</div>
+      <div class="insight-body">${ins.body}</div>
+      <div class="insight-number">${ins.number}</div>
+    </div>
+  `).join('');
+}
+
+function updatePeriodBadge() {
+  const badge = document.getElementById('period-badge');
+  badge.textContent = currentFilter === 'todos' ? 'Abril – Junho 2025' : currentFilter + ' 2025';
+}
+
+function updateAll() {
+  updateKPIs();
+  updateBar();
+  updateRadar();
+  updateLine();
+  updateInsights();
+  updatePeriodBadge();
+}
+
+/* FILTER BUTTONS */
+document.querySelectorAll('.filter-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    updateAll();
+  });
+});
+
+updateAll();
+</script>
+</body>
+</html>
